@@ -2,31 +2,50 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
 
-public enum State
+public enum ActivityState
 {
-    Fusion,
-    Discover,
-    Forge,
-    Mix,
-    None,
+    FUSION,
+    DISCOVER,
+    FORGE,
+    MIX,
+    NONE,
 }
 
 [Serializable]
 public class Activity
 {
-    public State state;
+    public ActivityState state;
 
     public string description;
 
     public float angle;
     public GameObject info;
+    public CanvasGroup canvasGroup;
 
     public void Init()
     {
+        if (canvasGroup != null)
+        {
+            canvasGroup.CanvasGroupFade(1);
+            canvasGroup.CanvasGroupInteractable(true);
+        }
         if (info != null)
             info.SetActive(false);
+    }
+
+    public void CanvasGroupInteractable(bool canInteract)
+    {
+        if (canvasGroup != null)
+            canvasGroup.CanvasGroupInteractable(canInteract);
+    }
+
+    public void TurnOn()
+    {
+        if (canvasGroup != null)
+            canvasGroup.CanvasGroupInteractable(true);
+        if (info != null)
+            info.SetActive(true);
     }
 }
 
@@ -38,14 +57,15 @@ public class ActivityManager : MonoBehaviour
     [SerializeField] Activity currentActivity;
     [SerializeField] Coroutine currentCoroutine;
 
-    [SerializeField] TextMeshProUGUI activityText;
-    [SerializeField] TextMeshProUGUI descriptionText;
+    [SerializeField] ActivityUIController activityUIController;
 
 
     [Header("Animation Properties")]
     [SerializeField] AnimationCurve animCurve;
     [SerializeField] float rotationTime = .5f;
     int index = 0;
+    [SerializeField] UIButtonActions buttonActions;
+
 
     void Awake()
     {
@@ -76,6 +96,7 @@ public class ActivityManager : MonoBehaviour
     {
         float oldAngle = activities[index].angle;
         int oldIndex = index;
+        activities[oldIndex].CanvasGroupInteractable(false);
 
         index = isRight ? index + 1 : index - 1;
         bool needToTransform = false;
@@ -113,7 +134,7 @@ public class ActivityManager : MonoBehaviour
         if (activities[oldIndex].info != null)
             activities[oldIndex].info.SetActive(false);
         if (activities[index].info != null)
-            activities[index].info.SetActive(true);
+            activities[index].TurnOn();
 
         currentCoroutine = null;
     }
@@ -121,8 +142,8 @@ public class ActivityManager : MonoBehaviour
     void UpdateInfo()
     {
         currentActivity = activities[index];
-        activityText.text = currentActivity.state.ToString();
-        descriptionText.text = currentActivity.description;
+        activityUIController.UpdateActivityInfo(currentActivity.state.ToString(), currentActivity.description);
+        buttonActions.UpdateButtonAction(currentActivity);
     }
 }
 

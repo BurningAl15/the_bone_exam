@@ -14,18 +14,18 @@ public class ColorManager : MonoBehaviour
     [SerializeField] List<Color> colors = new List<Color>();
     Dictionary<ChemistryType, Color> colorDictionary = new Dictionary<ChemistryType, Color>();
 
-    void OnRenderObject()
-    {
-        if (_instance == null)
-        {
-            _instance = this;
-            for (int i = 0; i < colors.Count; i++)
-            {
-                print((ChemistryType)i);
-                colorDictionary.Add((ChemistryType)i, colors[i]);
-            }
-        }
-    }
+    // void OnRenderObject()
+    // {
+    //     if (_instance == null)
+    //     {
+    //         _instance = this;
+    //         for (int i = 0; i < colors.Count; i++)
+    //         {
+    //             print((ChemistryType)i);
+    //             colorDictionary.Add((ChemistryType)i, colors[i]);
+    //         }
+    //     }
+    // }
 
 
     public Color GetColor(ChemistryType type)
