@@ -7,22 +7,19 @@ public class UIButtonActions : MonoBehaviour
 {
     [SerializeField] TextMeshProUGUI buttonText;
 
-    Activity currentActivity;
-
     void UpdateButtonText(string _text)
     {
         buttonText.text = _text;
     }
 
-    public void UpdateButtonAction(Activity activity)
+    public void UpdateButtonAction()
     {
-        UpdateButtonText(activity.state.ToString());
-        currentActivity = activity;
+        UpdateButtonText(ButtonManager._instance.GetCurrentActivity().state.ToString());
     }
 
     public void ButtonAction()
     {
-        switch (currentActivity.state)
+        switch (ButtonManager._instance.GetCurrentActivity().state)
         {
             case ActivityState.FUSION:
                 print("Do Fusion Stuff");

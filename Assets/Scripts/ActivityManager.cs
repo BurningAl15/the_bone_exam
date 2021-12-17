@@ -3,76 +3,27 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum ActivityState
-{
-    FUSION,
-    DISCOVER,
-    FORGE,
-    MIX,
-    NONE,
-}
-
-[Serializable]
-public class Activity
-{
-    public ActivityState state;
-
-    public string description;
-
-    public float angle;
-    public GameObject info;
-    public CanvasGroup canvasGroup;
-
-    public void Init()
-    {
-        if (canvasGroup != null)
-        {
-            canvasGroup.CanvasGroupFade(1);
-            canvasGroup.CanvasGroupInteractable(true);
-        }
-        if (info != null)
-            info.SetActive(false);
-    }
-
-    public void CanvasGroupInteractable(bool canInteract)
-    {
-        if (canvasGroup != null)
-            canvasGroup.CanvasGroupInteractable(canInteract);
-    }
-
-    public void TurnOn()
-    {
-        if (canvasGroup != null)
-            canvasGroup.CanvasGroupInteractable(true);
-        if (info != null)
-            info.SetActive(true);
-    }
-}
 
 public class ActivityManager : MonoBehaviour
 {
     [Header("Logic Properties")]
     [SerializeField] Transform circleTransform;
-    [SerializeField] List<Activity> activities;
-    [SerializeField] Activity currentActivity;
     [SerializeField] Coroutine currentCoroutine;
 
     [SerializeField] ActivityUIController activityUIController;
+    [SerializeField] UIButtonActions buttonActions;
 
 
     [Header("Animation Properties")]
     [SerializeField] AnimationCurve animCurve;
     [SerializeField] float rotationTime = .5f;
     int index = 0;
-    [SerializeField] UIButtonActions buttonActions;
 
 
-    void Awake()
-    {
-        for (int i = 1; i < activities.Count; i++)
-            activities[i].Init();
-        UpdateInfo();
-    }
+    // void Start()
+    // {
+    //     UpdateInfo();
+    // }
 
     void Update()
     {
@@ -94,30 +45,32 @@ public class ActivityManager : MonoBehaviour
 
     IEnumerator Rotate(bool isRight)
     {
-        float oldAngle = activities[index].angle;
-        int oldIndex = index;
-        activities[oldIndex].CanvasGroupInteractable(false);
+        //Angle 
+        // ! Just in case, replace all activityParents with activities to return to the working point
+        float oldAngle = ButtonManager._instance.GetAngle();
+        int oldIndex = ButtonManager._instance.GetCurrentIndex();
+        if (Menu_StateManager._instance.GetState() == MenuState.ACTION_SELECTION)
+            ButtonManager._instance.GetCurrentActivity(oldIndex).TurnOff();
 
-        index = isRight ? index + 1 : index - 1;
+        ButtonManager._instance.SetCurrentIndex(isRight);
         bool needToTransform = false;
 
-        if (index > activities.Count - 1)
+        if (ButtonManager._instance.GetCondition(true))
         {
-            index = 0;
+            ButtonManager._instance.SetCurrentIndex_Reset(true);
             needToTransform = true;
         }
-        else if (index < 0)
+        else if (ButtonManager._instance.GetCondition(false))
         {
-            index = activities.Count - 1;
+            ButtonManager._instance.SetCurrentIndex_Reset(false);
             needToTransform = true;
         }
-
 
         if (needToTransform)
         {
             for (float i = 0; i < rotationTime; i += Time.deltaTime)
             {
-                circleTransform.eulerAngles = new Vector3(0, 0, Mathf.Lerp(oldAngle, isRight ? 360 : -75, animCurve.Evaluate(i / rotationTime)));
+                ButtonManager._instance.GetCurrentMenu().eulerAngles = new Vector3(0, 0, Mathf.Lerp(oldAngle, isRight ? 360 : -75, animCurve.Evaluate(i / rotationTime)));
                 yield return null;
             }
         }
@@ -125,25 +78,107 @@ public class ActivityManager : MonoBehaviour
         {
             for (float i = 0; i < rotationTime; i += Time.deltaTime)
             {
-                circleTransform.eulerAngles = new Vector3(0, 0, Mathf.Lerp(oldAngle, activities[index].angle, animCurve.Evaluate(i / rotationTime)));
+                ButtonManager._instance.GetCurrentMenu().eulerAngles = new Vector3(0, 0, Mathf.Lerp(oldAngle, ButtonManager._instance.GetAngle(), animCurve.Evaluate(i / rotationTime)));
                 yield return null;
             }
         }
 
-        UpdateInfo();
-        if (activities[oldIndex].info != null)
-            activities[oldIndex].info.SetActive(false);
-        if (activities[index].info != null)
-            activities[index].TurnOn();
+        //Info
+        if (Menu_StateManager._instance.GetState() == MenuState.ACTION_SELECTION)
+        {
+            ButtonManager._instance.UpdateInfo();
+            if (ButtonManager._instance.GetCurrentActivity(oldIndex).info != null)
+                ButtonManager._instance.GetCurrentActivity(oldIndex).info.SetActive(false);
+            if (ButtonManager._instance.GetCurrentActivity().info != null)
+                ButtonManager._instance.GetCurrentActivity().TurnOn();
+            ButtonManager._instance.UpdateButtons_ActionSelection();
+        }
+        else if (Menu_StateManager._instance.GetState() == MenuState.CHEMISTRY_SELECTION)
+        {
+            print("Updating Chemistry");
+        }
+        else if (Menu_StateManager._instance.GetState() == MenuState.ELEMENT_SELECTION)
+        {
+            print("Updating Element");
+        }
 
         currentCoroutine = null;
     }
 
-    void UpdateInfo()
-    {
-        currentActivity = activities[index];
-        activityUIController.UpdateActivityInfo(currentActivity.state.ToString(), currentActivity.description);
-        buttonActions.UpdateButtonAction(currentActivity);
-    }
+    // IEnumerator JustInCase(bool isRight)
+    // {
+    //     List<Activity> activityParents = new List<Activity>();
+    //     switch (Menu_StateManager._instance.GetState())
+    //     {
+    //         case MenuState.ACTION_SELECTION:
+    //             activityParents = activities;
+    //             break;
+    //         case MenuState.CHEMISTRY_SELECTION:
+    //             activityParents = chemistryActivities;
+    //             break;
+    //         case MenuState.ELEMENT_SELECTION:
+    //             activityParents = elementActivities;
+    //             break;
+    //     }
+
+    //     //Angle 
+    //     // ! Just in case, replace all activityParents with activities to return to the working point
+    //     float oldAngle = activityParents[index].angle;
+    //     int oldIndex = index;
+    //     activityParents[oldIndex].CanvasGroupInteractable(false);
+
+    //     index = isRight ? index + 1 : index - 1;
+    //     bool needToTransform = false;
+
+    //     if (index > activityParents.Count - 1)
+    //     {
+    //         index = 0;
+    //         needToTransform = true;
+    //     }
+    //     else if (index < 0)
+    //     {
+    //         index = activityParents.Count - 1;
+    //         needToTransform = true;
+    //     }
+
+
+    //     if (needToTransform)
+    //     {
+    //         for (float i = 0; i < rotationTime; i += Time.deltaTime)
+    //         {
+    //             // circleTransform.eulerAngles = new Vector3(0, 0, Mathf.Lerp(oldAngle, isRight ? 360 : -75, animCurve.Evaluate(i / rotationTime)));
+    //             ButtonManager._instance.GetCurrentMenu().eulerAngles = new Vector3(0, 0, Mathf.Lerp(oldAngle, isRight ? 360 : -75, animCurve.Evaluate(i / rotationTime)));
+    //             yield return null;
+    //         }
+    //     }
+    //     else
+    //     {
+    //         for (float i = 0; i < rotationTime; i += Time.deltaTime)
+    //         {
+    //             ButtonManager._instance.GetCurrentMenu().eulerAngles = new Vector3(0, 0, Mathf.Lerp(oldAngle, activityParents[index].angle, animCurve.Evaluate(i / rotationTime)));
+    //             yield return null;
+    //         }
+    //     }
+
+    //     //Info
+    //     UpdateInfo();
+    //     if (activityParents[oldIndex].info != null)
+    //         activityParents[oldIndex].info.SetActive(false);
+    //     if (activityParents[index].info != null)
+    //         activityParents[index].TurnOn();
+
+    //     currentCoroutine = null;
+
+    // }
+
+    // void UpdateInfo()
+    // {
+    //     // currentActivity = activities[index];
+    //     // activityUIController.UpdateActivityInfo(currentActivity.state.ToString(), currentActivity.description);
+    //     // buttonActions.UpdateButtonAction(currentActivity);
+
+    //     activityUIController.UpdateActivityInfo(ButtonManager._instance.GetCurrentActivity().ToString(), ButtonManager._instance.GetCurrentActivity().description);
+    //     buttonActions.UpdateButtonAction();
+    // }
 }
 
