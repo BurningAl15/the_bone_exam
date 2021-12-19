@@ -57,6 +57,8 @@ public class MenuContainer
 {
     public GameObject menu;
     public Transform menuTransform;
+    public RoundMenuContentManager roundMenuContentManager;
+
     public int index = 0;
 
     public List<ActionSelection> actionSelections = new List<ActionSelection>();
@@ -65,51 +67,81 @@ public class MenuContainer
 
     public void Init()
     {
+        if (menuTransform == null)
+            menuTransform = menu.transform;
+        if (roundMenuContentManager == null)
+            roundMenuContentManager = menu.GetComponent<RoundMenuContentManager>();
+
         for (int i = 1; i < actionSelections.Count; i++)
             actionSelections[i].Init();
+    }
+
+    public void LeftButton_Action()
+    {
+        if (Menu_StateManager._instance.GetState() == MenuState.CHEMISTRY_SELECTION)
+            Menu_StateManager._instance.SetState_ActionSelection();
+        else if (Menu_StateManager._instance.GetState() == MenuState.ELEMENT_SELECTION)
+            Menu_StateManager._instance.SetState_ChemistrySelection();
+        else
+            Menu_StateManager._instance.SetState_ElementSelection();
+
+        //2
+        ButtonManager._instance.UpdateMenu();
+        ButtonManager._instance.UpdateButtons();
+    }
+    public void RightButton_Action()
+    {
+        if (Menu_StateManager._instance.GetState() == MenuState.ACTION_SELECTION)
+            Menu_StateManager._instance.SetState_ChemistrySelection();
+        else if (Menu_StateManager._instance.GetState() == MenuState.CHEMISTRY_SELECTION)
+            Menu_StateManager._instance.SetState_ElementSelection();
+        else if (Menu_StateManager._instance.GetState() == MenuState.ELEMENT_SELECTION)
+            Menu_StateManager._instance.SetState_Production();
+
+        ButtonManager._instance.UpdateMenu();
+        ButtonManager._instance.UpdateButtons();
     }
 }
 
 public class ButtonManager : MonoBehaviour
 {
     public static ButtonManager _instance;
-    [SerializeField] Button btnLeft, btnRight, btnAction;
 
-    [SerializeField] Image parentImg;
-    [SerializeField] Sprite actionState_BG, chemicalState_BG, elementState_BG;
-    [SerializeField] MenuContainer menu_5, menu_6;
+    [Header("Buttons")]
+    [SerializeField] Button btnLeft;
+    [SerializeField] Button btnRight;
+    [SerializeField] Button btnAction;
 
-    [SerializeField] MenuContainer currentMenu;
-
+    [Header("Other Scripts")]
     [SerializeField] ActivityUIController activityUIController;
     [SerializeField] UIButtonActions buttonActions;
-
+    [SerializeField] RoundMenuManager roundMenuManager;
 
     void Awake()
     {
         _instance = this;
-        menu_5.Init();
-        menu_6.Init();
+        roundMenuManager.Init();
     }
 
     void Start()
     {
-        UpdateMenu();
+        roundMenuManager.UpdateMenu();
         UpdateInfo();
         UpdateButtons();
-        UpdateButtons_ActionSelection();
     }
 
+    // Button Actions
     public void UpdateButtons()
     {
         switch (Menu_StateManager._instance.GetState())
         {
             case MenuState.ACTION_SELECTION:
-                // UpdateButtons_ActionSelection(currentMenu.actionSelections[currentMenu.index].state);
+                UpdateButtons_ActionSelection();
                 break;
 
             case MenuState.CHEMISTRY_SELECTION:
                 btnLeft.interactable = true;
+                btnAction.interactable = false;
                 btnRight.interactable = true;
                 break;
 
@@ -122,7 +154,7 @@ public class ButtonManager : MonoBehaviour
 
     public void UpdateButtons_ActionSelection()
     {
-        switch (currentMenu.actionSelections[currentMenu.index].state)
+        switch (roundMenuManager.currentMenu.actionSelections[roundMenuManager.currentMenu.index].state)
         {
             case ActivityState.FUSION:
                 btnAction.interactable = true;
@@ -152,111 +184,114 @@ public class ButtonManager : MonoBehaviour
         }
     }
 
+    public void UpdateButtons_ChemicalSelection()
+    {
+
+    }
+
+    // Round Menu Actions
+    #region Round Menu Actions
     public void UpdateMenu()
     {
-        switch (Menu_StateManager._instance.GetState())
-        {
-            case MenuState.ACTION_SELECTION:
-                menu_5.menu.SetActive(true);
-                menu_6.menu.SetActive(false);
-                currentMenu = menu_5;
-                parentImg.sprite = actionState_BG;
-                break;
-
-            case MenuState.CHEMISTRY_SELECTION:
-                menu_5.menu.SetActive(false);
-                menu_6.menu.SetActive(true);
-                currentMenu = menu_6;
-                parentImg.sprite = chemicalState_BG;
-                break;
-
-            case MenuState.ELEMENT_SELECTION:
-                menu_5.menu.SetActive(false);
-                menu_6.menu.SetActive(true);
-                currentMenu = menu_6;
-                parentImg.sprite = elementState_BG;
-                break;
-        }
+        roundMenuManager.UpdateMenu();
     }
 
     public Transform GetCurrentMenu()
     {
-        return currentMenu.menuTransform;
+        return roundMenuManager.GetCurrentMenu();
     }
 
     public ActionSelection GetCurrentActivity()
     {
-        return currentMenu.actionSelections[currentMenu.index];
+        return roundMenuManager.GetCurrentActivity();
     }
 
     public ActionSelection GetCurrentActivity(int _index)
     {
-        return currentMenu.actionSelections[_index];
+        return roundMenuManager.GetCurrentActivity(_index);
     }
 
     public ActivityState GetCurrentActivityState()
     {
-        return currentMenu.actionSelections[currentMenu.index].state;
+        return roundMenuManager.GetCurrentActivityState();
     }
-
 
     public int GetCurrentIndex()
     {
-        return currentMenu.index;
+        return roundMenuManager.GetCurrentIndex();
     }
 
     public List<float> GetAngles()
     {
-        return currentMenu.angles;
+        return roundMenuManager.GetAngles();
     }
 
     public float GetAngle()
     {
-        return currentMenu.angles[currentMenu.index];
+        return roundMenuManager.GetAngle();
     }
 
     public int GetSize()
     {
-        return currentMenu.angles.Count;
+        return roundMenuManager.GetSize();
     }
 
     public bool GetCondition(bool _)
     {
-        return _ ? currentMenu.index > currentMenu.angles.Count - 1 : currentMenu.index < 0;
+        return roundMenuManager.GetCondition(_);
     }
 
     public void SetCurrentIndex(bool _)
     {
-        currentMenu.index = _ ? currentMenu.index + 1 : currentMenu.index - 1;
-        UpdateStuff();
+        roundMenuManager.SetCurrentIndex(_);
     }
 
     public void SetCurrentIndex_Reset(bool _)
     {
-        currentMenu.index = _ ? 0 : currentMenu.angles.Count - 1;
-        UpdateStuff();
+        roundMenuManager.SetCurrentIndex_Reset(_);
     }
+    #endregion
 
-    void UpdateStuff()
-    {
-        switch (Menu_StateManager._instance.GetState())
-        {
-            case MenuState.ACTION_SELECTION:
-                menu_5 = currentMenu;
-                break;
-            case MenuState.CHEMISTRY_SELECTION:
-            case MenuState.ELEMENT_SELECTION:
-                menu_6 = currentMenu;
-                break;
-        }
-    }
-
+    #region Update info in Activity Selection State
     public void UpdateInfo()
     {
         if (Menu_StateManager._instance.GetState() == MenuState.ACTION_SELECTION)
         {
-            activityUIController.UpdateActivityInfo(GetCurrentActivity().ToString(), GetCurrentActivity().description);
+            activityUIController.UpdateActivityInfo(GetCurrentActivityState().ToString(), GetCurrentActivity().description);
             buttonActions.UpdateButtonAction();
         }
     }
+
+    public void LeftButton_Action()
+    {
+        roundMenuManager.currentMenu.LeftButton_Action();
+    }
+
+    public void RightButton_Action()
+    {
+        roundMenuManager.currentMenu.RightButton_Action();
+    }
+
+    public void ActionButton_Action()
+    {
+        switch (ButtonManager._instance.GetCurrentActivity().state)
+        {
+            case ActivityState.FUSION:
+                print("Do Fusion Stuff");
+                break;
+            case ActivityState.DISCOVER:
+                print("Do Discover Stuff");
+                break;
+            case ActivityState.FORGE:
+                print("Do Forge Stuff");
+                break;
+            case ActivityState.MIX:
+                print("Do Mix Stuff");
+                break;
+            case ActivityState.NONE:
+                print("Doing Nothing");
+                break;
+        }
+    }
+    #endregion
 }
