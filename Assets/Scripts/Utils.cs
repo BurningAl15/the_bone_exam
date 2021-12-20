@@ -39,6 +39,15 @@ public enum MenuState
     PRODUCTION
 }
 
+public enum SoundTypes
+{
+    MOVE,
+    CLOSE,
+    WIN,
+    GOODCLICK,
+    BADCLICK
+}
+
 public class Utils
 {
 

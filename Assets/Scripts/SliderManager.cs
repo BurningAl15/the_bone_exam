@@ -66,6 +66,12 @@ public class SliderManager : MonoBehaviour
             orbDetails.UpdateOrbMultiplier(value);
     }
 
+    public void ResetValue()
+    {
+        slider.value = 0;
+        UpdateValue();
+    }
+
     public float GetValue()
     {
         return value;

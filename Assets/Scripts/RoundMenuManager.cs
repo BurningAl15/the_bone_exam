@@ -251,4 +251,11 @@ public class RoundMenuManager : MonoBehaviour
         }
     }
     #endregion
+
+    public void ResetMenuIndexes()
+    {
+        menu_Activity.index = 0;
+        menu_Chemical.index = 0;
+        menu_Element.index = 0;
+    }
 }

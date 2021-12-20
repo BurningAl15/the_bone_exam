@@ -14,19 +14,19 @@ public class ActivityManager : MonoBehaviour
     [SerializeField] float rotationTime = .5f;
 
 
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.D))
-        {
-            Move(true);
-        }
-        else if (Input.GetKeyDown(KeyCode.A))
-        {
-            Move(false);
-        }
-    }
+    // void Update()
+    // {
+    //     if (Input.GetKeyDown(KeyCode.D))
+    //     {
+    //         Move(true);
+    //     }
+    //     else if (Input.GetKeyDown(KeyCode.A))
+    //     {
+    //         Move(false);
+    //     }
+    // }
 
-    void Move(bool isRight)
+    public void Move(bool isRight)
     {
         if (currentCoroutine == null)
             currentCoroutine = StartCoroutine(Rotate(isRight));
@@ -36,6 +36,8 @@ public class ActivityManager : MonoBehaviour
     {
         //Angle 
         // ! Just in case, replace all activityParents with activities to return to the working point
+        SoundManager._instance.PlayMoveSound(SoundTypes.MOVE);
+
         float oldAngle = ButtonManager._instance.GetAngle();
         int oldIndex = ButtonManager._instance.GetCurrentIndex();
         if (Menu_StateManager._instance.GetState() == MenuState.ACTION_SELECTION)

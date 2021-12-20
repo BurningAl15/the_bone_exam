@@ -138,6 +138,7 @@ public class ButtonManager : MonoBehaviour
     {
         _instance = this;
         roundMenuManager.Init();
+        wholeInteractableContainer.SetActive(true);
         showOrbContainer.SetActive(false);
     }
 
@@ -327,11 +328,13 @@ public class ButtonManager : MonoBehaviour
     public void LeftButton_Action()
     {
         roundMenuManager.currentMenu.LeftButton_Action();
+        SoundManager._instance.PlayMoveSound(SoundTypes.GOODCLICK);
     }
 
     public void RightButton_Action()
     {
         roundMenuManager.currentMenu.RightButton_Action();
+        SoundManager._instance.PlayMoveSound(SoundTypes.GOODCLICK);
     }
     #endregion
 
@@ -357,16 +360,45 @@ public class ButtonManager : MonoBehaviour
                     print("Doing Nothing");
                     break;
             }
+            SoundManager._instance.PlayMoveSound(SoundTypes.BADCLICK);
         }
         if (Menu_StateManager._instance.GetState() == MenuState.ELEMENT_SELECTION)
         {
             if (sliderManager.GetValue() > 10)
             {
+                roundMenuManager.TurnOff_SliderContainer();
+                roundMenuManager.TurnOff_6DivisionsCenter();
+
                 wholeInteractableContainer.SetActive(false);
                 showOrbContainer.SetActive(true);
                 showOrb.UpdateOrbDetails(GetCurrentElement().sprite, GetCurrentElementType().ToString(), sliderManager.GetValue().ToString());
-                print("DO SOMETHING!");
+
+                sliderManager.ResetValue();
+                SoundManager._instance.PlayMoveSound(SoundTypes.GOODCLICK);
             }
+            else
+            {
+                SoundManager._instance.PlayMoveSound(SoundTypes.BADCLICK);
+                //Wrong sound
+            }
+        }
+    }
+
+    public void ResetButton_Action()
+    {
+        if (Menu_StateManager._instance.GetState() == MenuState.ELEMENT_SELECTION)
+        {
+            SoundManager._instance.PlayMoveSound(SoundTypes.CLOSE);
+            wholeInteractableContainer.SetActive(true);
+            showOrbContainer.SetActive(false);
+            roundMenuManager.ResetMenuIndexes();
+            Menu_StateManager._instance.SetState_ActionSelection();
+
+            roundMenuManager.UpdateMenu();
+            UpdateActivityInfo();
+            InitElementInfo();
+
+            UpdateButtons();
         }
     }
 }
