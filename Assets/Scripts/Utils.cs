@@ -21,6 +21,16 @@ public enum ChemistryType
     PINK
 }
 
+public enum ElementType
+{
+    RUBY,
+    JASPER,
+    EMERALD,
+    TOPAZ,
+    SAPHIRE,
+    PEARL
+}
+
 public enum MenuState
 {
     ACTION_SELECTION,

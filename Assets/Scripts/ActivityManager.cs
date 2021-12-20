@@ -6,9 +6,7 @@ using UnityEngine;
 
 public class ActivityManager : MonoBehaviour
 {
-    [Header("Logic Properties")]
-    [SerializeField] Transform circleTransform;
-    [SerializeField] Coroutine currentCoroutine;
+    Coroutine currentCoroutine;
 
 
     [Header("Animation Properties")]
@@ -42,6 +40,8 @@ public class ActivityManager : MonoBehaviour
         int oldIndex = ButtonManager._instance.GetCurrentIndex();
         if (Menu_StateManager._instance.GetState() == MenuState.ACTION_SELECTION)
             ButtonManager._instance.GetCurrentActivity(oldIndex).TurnOff();
+        // else if (Menu_StateManager._instance.GetState() == MenuState.ELEMENT_SELECTION)
+        //     ButtonManager._instance.GetCurrentElement(oldIndex).TurnOff();
 
         ButtonManager._instance.SetCurrentIndex(isRight);
         bool needToTransform = false;
@@ -77,14 +77,13 @@ public class ActivityManager : MonoBehaviour
         //Info
         if (Menu_StateManager._instance.GetState() == MenuState.ACTION_SELECTION)
         {
-            ButtonManager._instance.UpdateInfo();
+            ButtonManager._instance.UpdateActivityInfo();
             if (ButtonManager._instance.GetCurrentActivity(oldIndex).info != null)
                 ButtonManager._instance.GetCurrentActivity(oldIndex).info.SetActive(false);
             if (ButtonManager._instance.GetCurrentActivity().info != null)
                 ButtonManager._instance.GetCurrentActivity().TurnOn();
             // ButtonManager._instance.UpdateButtons_ActionSelection();
             ButtonManager._instance.UpdateButtons();
-
         }
         else if (Menu_StateManager._instance.GetState() == MenuState.CHEMISTRY_SELECTION)
         {
@@ -92,7 +91,7 @@ public class ActivityManager : MonoBehaviour
         }
         else if (Menu_StateManager._instance.GetState() == MenuState.ELEMENT_SELECTION)
         {
-            print("Updating Element");
+            ButtonManager._instance.UpdateElementInfo();
         }
 
         currentCoroutine = null;

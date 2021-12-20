@@ -6,7 +6,6 @@ using TMPro;
 
 public class SliderManager : MonoBehaviour
 {
-
     [Header("UI Components")]
     [SerializeField] Slider slider;
     [SerializeField] TextMeshProUGUI textMesh;
@@ -17,10 +16,30 @@ public class SliderManager : MonoBehaviour
     [Space]
     [SerializeField] List<ElementContainer> containerElements = new List<ElementContainer>();
 
+    [SerializeField] OrbDetails orbDetails;
+
     void Awake()
     {
         slider.maxValue = maxValue;
-        UpdateValue();
+
+        if (orbDetails == null)
+            UpdateValue();
+    }
+
+    public void Init(bool[] validationArray)
+    {
+        if (orbDetails != null)
+        {
+            for (int i = 0; i < containerElements.Count; i++)
+                containerElements[i].gameObject.SetActive(false);
+
+            for (int i = 0; i < containerElements.Count; i++)
+            {
+                if (validationArray[i])
+                    containerElements[i].gameObject.SetActive(true);
+            }
+            UpdateValue();
+        }
     }
 
     public void SetValue(float _value)
@@ -43,5 +62,12 @@ public class SliderManager : MonoBehaviour
         {
             containerElements[i].UpdateChemistryValue(value / maxValue);
         }
+        if (orbDetails != null)
+            orbDetails.UpdateOrbMultiplier(value);
+    }
+
+    public float GetValue()
+    {
+        return value;
     }
 }

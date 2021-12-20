@@ -53,6 +53,15 @@ public class ChemicalSelection
 }
 
 [Serializable]
+public class ElementSelection
+{
+    public ElementType state;
+    public int multiplicationTimes;
+    public Sprite sprite;
+    public bool[] validationArray = new bool[6];
+}
+
+[Serializable]
 public class MenuContainer
 {
     public GameObject menu;
@@ -63,6 +72,7 @@ public class MenuContainer
 
     public List<ActionSelection> actionSelections = new List<ActionSelection>();
     public List<ChemicalSelection> chemicalSelections = new List<ChemicalSelection>();
+    public List<ElementSelection> elementSelections = new List<ElementSelection>();
     public List<float> angles = new List<float>();
 
     public void Init()
@@ -89,6 +99,7 @@ public class MenuContainer
         ButtonManager._instance.UpdateMenu();
         ButtonManager._instance.UpdateButtons();
     }
+
     public void RightButton_Action()
     {
         if (Menu_StateManager._instance.GetState() == MenuState.ACTION_SELECTION)
@@ -116,17 +127,25 @@ public class ButtonManager : MonoBehaviour
     [SerializeField] ActivityUIController activityUIController;
     [SerializeField] UIButtonActions buttonActions;
     [SerializeField] RoundMenuManager roundMenuManager;
+    [SerializeField] OrbDetails orbDetails;
+    [SerializeField] ShowOrb showOrb;
+
+    [SerializeField] GameObject wholeInteractableContainer;
+    [SerializeField] GameObject showOrbContainer;
+    [SerializeField] SliderManager sliderManager;
 
     void Awake()
     {
         _instance = this;
         roundMenuManager.Init();
+        showOrbContainer.SetActive(false);
     }
 
     void Start()
     {
         roundMenuManager.UpdateMenu();
-        UpdateInfo();
+        UpdateActivityInfo();
+        InitElementInfo();
         UpdateButtons();
     }
 
@@ -140,14 +159,17 @@ public class ButtonManager : MonoBehaviour
                 break;
 
             case MenuState.CHEMISTRY_SELECTION:
+                UpdateButtons_ChemicalSelection();
                 btnLeft.interactable = true;
                 btnAction.interactable = false;
                 btnRight.interactable = true;
                 break;
 
             case MenuState.ELEMENT_SELECTION:
+                UpdateButtons_ElementSelection();
                 btnLeft.interactable = true;
-                btnRight.interactable = true;
+                btnAction.interactable = true;
+                btnRight.interactable = false;
                 break;
         }
     }
@@ -186,7 +208,14 @@ public class ButtonManager : MonoBehaviour
 
     public void UpdateButtons_ChemicalSelection()
     {
+        roundMenuManager.TurnOff_SliderContainer();
+        roundMenuManager.TurnOn_6DivisionsCenter();
+    }
 
+    public void UpdateButtons_ElementSelection()
+    {
+        roundMenuManager.TurnOn_SliderContainer();
+        roundMenuManager.TurnOff_6DivisionsCenter();
     }
 
     // Round Menu Actions
@@ -201,6 +230,7 @@ public class ButtonManager : MonoBehaviour
         return roundMenuManager.GetCurrentMenu();
     }
 
+    //Activity
     public ActionSelection GetCurrentActivity()
     {
         return roundMenuManager.GetCurrentActivity();
@@ -214,6 +244,26 @@ public class ButtonManager : MonoBehaviour
     public ActivityState GetCurrentActivityState()
     {
         return roundMenuManager.GetCurrentActivityState();
+    }
+
+    //Element
+    public ElementSelection GetCurrentElement()
+    {
+        return roundMenuManager.GetCurrentElement();
+    }
+
+    public ElementSelection GetCurrentElement(int _index)
+    {
+        return roundMenuManager.GetCurrentElement(_index);
+    }
+
+    public ElementType GetCurrentElementType()
+    {
+        return roundMenuManager.GetCurrentElementType();
+    }
+    public ElementSelection GetInitialValue()
+    {
+        return roundMenuManager.GetInitialValue();
     }
 
     public int GetCurrentIndex()
@@ -250,16 +300,28 @@ public class ButtonManager : MonoBehaviour
     {
         roundMenuManager.SetCurrentIndex_Reset(_);
     }
+
     #endregion
 
     #region Update info in Activity Selection State
-    public void UpdateInfo()
+    public void UpdateActivityInfo()
     {
         if (Menu_StateManager._instance.GetState() == MenuState.ACTION_SELECTION)
         {
             activityUIController.UpdateActivityInfo(GetCurrentActivityState().ToString(), GetCurrentActivity().description);
             buttonActions.UpdateButtonAction();
         }
+    }
+
+    public void UpdateElementInfo()
+    {
+        if (Menu_StateManager._instance.GetState() == MenuState.ELEMENT_SELECTION)
+            orbDetails.UpdateOrbDetails(GetCurrentElement().sprite, GetCurrentElementType().ToString(), GetCurrentElement().validationArray);
+    }
+
+    public void InitElementInfo()
+    {
+        orbDetails.UpdateOrbDetails(GetInitialValue().sprite, GetInitialValue().state.ToString(), GetInitialValue().validationArray);
     }
 
     public void LeftButton_Action()
@@ -271,27 +333,40 @@ public class ButtonManager : MonoBehaviour
     {
         roundMenuManager.currentMenu.RightButton_Action();
     }
+    #endregion
 
     public void ActionButton_Action()
     {
-        switch (ButtonManager._instance.GetCurrentActivity().state)
+        if (Menu_StateManager._instance.GetState() == MenuState.ACTION_SELECTION)
         {
-            case ActivityState.FUSION:
-                print("Do Fusion Stuff");
-                break;
-            case ActivityState.DISCOVER:
-                print("Do Discover Stuff");
-                break;
-            case ActivityState.FORGE:
-                print("Do Forge Stuff");
-                break;
-            case ActivityState.MIX:
-                print("Do Mix Stuff");
-                break;
-            case ActivityState.NONE:
-                print("Doing Nothing");
-                break;
+            switch (ButtonManager._instance.GetCurrentActivity().state)
+            {
+                case ActivityState.FUSION:
+                    print("Do Fusion Stuff");
+                    break;
+                case ActivityState.DISCOVER:
+                    print("Do Discover Stuff");
+                    break;
+                case ActivityState.FORGE:
+                    print("Do Forge Stuff");
+                    break;
+                case ActivityState.MIX:
+                    print("Do Mix Stuff");
+                    break;
+                case ActivityState.NONE:
+                    print("Doing Nothing");
+                    break;
+            }
+        }
+        if (Menu_StateManager._instance.GetState() == MenuState.ELEMENT_SELECTION)
+        {
+            if (sliderManager.GetValue() > 10)
+            {
+                wholeInteractableContainer.SetActive(false);
+                showOrbContainer.SetActive(true);
+                showOrb.UpdateOrbDetails(GetCurrentElement().sprite, GetCurrentElementType().ToString(), sliderManager.GetValue().ToString());
+                print("DO SOMETHING!");
+            }
         }
     }
-    #endregion
 }

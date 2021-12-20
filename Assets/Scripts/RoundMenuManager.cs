@@ -7,6 +7,7 @@ public class RoundMenuManager : MonoBehaviour
 {
     [SerializeField] Image parentImg;
 
+
     [Header("Action Menu Properties")]
     [SerializeField] Sprite actionState_BG;
     [SerializeField] MenuContainer menu_Activity;
@@ -22,6 +23,14 @@ public class RoundMenuManager : MonoBehaviour
     [SerializeField] MenuContainer menu_Element;
 
 
+    [Header("Slider Menu for Orbs")]
+    [SerializeField] GameObject fusionContainer;
+    [SerializeField] CanvasGroup fusionContainerCanvasGroup;
+
+    [SerializeField] GameObject contentChemistryContainer;
+    [SerializeField] CanvasGroup contentChemistryCanvasGroup;
+
+
     [Header("To check states Properties")]
     public MenuContainer currentMenu;
 
@@ -30,6 +39,7 @@ public class RoundMenuManager : MonoBehaviour
         menu_Activity.Init();
         menu_Chemical.Init();
         menu_Element.Init();
+        Init_SliderContainer();
     }
 
     public void UpdateMenu()
@@ -78,11 +88,64 @@ public class RoundMenuManager : MonoBehaviour
 
         menu_Chemical.roundMenuContentManager.OuterContentChange();
         menu_Chemical.roundMenuContentManager.InnerContentChange();
+
+        menu_Element.roundMenuContentManager.OuterContentChange();
+        menu_Element.roundMenuContentManager.InnerContentChange();
     }
 
     void Update_Menu_BG(Sprite _)
     {
         parentImg.sprite = _;
+    }
+
+    //From Chemistry to Element States
+    public void Init_SliderContainer()
+    {
+        if (fusionContainerCanvasGroup != null)
+        {
+            fusionContainerCanvasGroup.CanvasGroupFade(1);
+            fusionContainerCanvasGroup.CanvasGroupInteractable(true);
+        }
+        if (fusionContainer != null)
+            fusionContainer.SetActive(false);
+    }
+
+    public void CanvasGroupInteractable_SliderContainer(bool canInteract)
+    {
+        if (fusionContainerCanvasGroup != null)
+            fusionContainerCanvasGroup.CanvasGroupInteractable(canInteract);
+    }
+
+    public void TurnOn_SliderContainer()
+    {
+        if (fusionContainerCanvasGroup != null)
+            fusionContainerCanvasGroup.CanvasGroupInteractable(true);
+        if (fusionContainer != null)
+            fusionContainer.SetActive(true);
+    }
+
+    public void TurnOff_SliderContainer()
+    {
+        if (fusionContainerCanvasGroup != null)
+            fusionContainerCanvasGroup.CanvasGroupInteractable(false);
+        if (fusionContainer != null)
+            fusionContainer.SetActive(false);
+    }
+
+    public void TurnOn_6DivisionsCenter()
+    {
+        if (contentChemistryCanvasGroup != null)
+            contentChemistryCanvasGroup.CanvasGroupInteractable(true);
+        if (contentChemistryContainer != null)
+            contentChemistryContainer.SetActive(true);
+    }
+
+    public void TurnOff_6DivisionsCenter()
+    {
+        if (contentChemistryCanvasGroup != null)
+            contentChemistryCanvasGroup.CanvasGroupInteractable(false);
+        if (contentChemistryContainer != null)
+            contentChemistryContainer.SetActive(false);
     }
 
     //Getters
@@ -94,6 +157,7 @@ public class RoundMenuManager : MonoBehaviour
         return currentMenu.menuTransform;
     }
 
+    //Activity
     public ActionSelection GetCurrentActivity()
     {
         return currentMenu.actionSelections[currentMenu.index];
@@ -107,6 +171,27 @@ public class RoundMenuManager : MonoBehaviour
     public ActivityState GetCurrentActivityState()
     {
         return currentMenu.actionSelections[currentMenu.index].state;
+    }
+
+    //Element
+    public ElementSelection GetCurrentElement()
+    {
+        return currentMenu.elementSelections[currentMenu.index];
+    }
+
+    public ElementSelection GetCurrentElement(int _index)
+    {
+        return currentMenu.elementSelections[_index];
+    }
+
+    public ElementType GetCurrentElementType()
+    {
+        return currentMenu.elementSelections[currentMenu.index].state;
+    }
+
+    public ElementSelection GetInitialValue()
+    {
+        return menu_Element.elementSelections[0];
     }
 
     public int GetCurrentIndex()
