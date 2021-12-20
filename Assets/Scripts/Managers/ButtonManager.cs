@@ -8,12 +8,13 @@ using UnityEngine.UI;
 [Serializable]
 public class ActionSelection
 {
-    [Header("Activity Properties")]
+    [Header("Action Selection Properties")]
     public ActivityState state;
     public string description;
     public GameObject info;
     public CanvasGroup canvasGroup;
 
+    #region Action Selection
     public void Init()
     {
         if (canvasGroup != null)
@@ -25,13 +26,13 @@ public class ActionSelection
             info.SetActive(false);
     }
 
-    public void CanvasGroupInteractable(bool canInteract)
+    public void CanvasGroupInteractable_ActionSelection(bool canInteract)
     {
         if (canvasGroup != null)
             canvasGroup.CanvasGroupInteractable(canInteract);
     }
 
-    public void TurnOn()
+    public void TurnOn_ActionSelection()
     {
         if (canvasGroup != null)
             canvasGroup.CanvasGroupInteractable(true);
@@ -39,11 +40,12 @@ public class ActionSelection
             info.SetActive(true);
     }
 
-    public void TurnOff()
+    public void TurnOff_ActionSelection()
     {
         if (canvasGroup != null)
             canvasGroup.CanvasGroupInteractable(false);
     }
+    #endregion
 }
 
 [Serializable]
@@ -55,6 +57,7 @@ public class ChemicalSelection
 [Serializable]
 public class ElementSelection
 {
+    [Header("Element Selection Properties")]
     public ElementType state;
     public int multiplicationTimes;
     public Sprite sprite;
@@ -64,10 +67,12 @@ public class ElementSelection
 [Serializable]
 public class MenuContainer
 {
+    [Header("Round Menu Content Manager Properties")]
     public GameObject menu;
     public Transform menuTransform;
     public RoundMenuContentManager roundMenuContentManager;
 
+    [Header("To get the current Menu Properties")]
     public int index = 0;
 
     public List<ActionSelection> actionSelections = new List<ActionSelection>();
@@ -86,6 +91,7 @@ public class MenuContainer
             actionSelections[i].Init();
     }
 
+    #region Button Actions
     public void LeftButton_Action()
     {
         if (Menu_StateManager._instance.GetState() == MenuState.CHEMISTRY_SELECTION)
@@ -95,7 +101,6 @@ public class MenuContainer
         else
             Menu_StateManager._instance.SetState_ElementSelection();
 
-        //2
         ButtonManager._instance.UpdateMenu();
         ButtonManager._instance.UpdateButtons();
     }
@@ -112,6 +117,7 @@ public class MenuContainer
         ButtonManager._instance.UpdateMenu();
         ButtonManager._instance.UpdateButtons();
     }
+    #endregion
 }
 
 public class ButtonManager : MonoBehaviour
@@ -129,10 +135,12 @@ public class ButtonManager : MonoBehaviour
     [SerializeField] RoundMenuManager roundMenuManager;
     [SerializeField] OrbDetails orbDetails;
     [SerializeField] ShowOrb showOrb;
+    [SerializeField] SliderManager sliderManager;
 
+    [Header("Game Screens")]
     [SerializeField] GameObject wholeInteractableContainer;
     [SerializeField] GameObject showOrbContainer;
-    [SerializeField] SliderManager sliderManager;
+
 
     void Awake()
     {
@@ -151,6 +159,7 @@ public class ButtonManager : MonoBehaviour
     }
 
     // Button Actions
+    #region Update Button Content
     public void UpdateButtons()
     {
         switch (Menu_StateManager._instance.GetState())
@@ -218,113 +227,9 @@ public class ButtonManager : MonoBehaviour
         roundMenuManager.TurnOn_SliderContainer();
         roundMenuManager.TurnOff_6DivisionsCenter();
     }
-
-    // Round Menu Actions
-    #region Round Menu Actions
-    public void UpdateMenu()
-    {
-        roundMenuManager.UpdateMenu();
-    }
-
-    public Transform GetCurrentMenu()
-    {
-        return roundMenuManager.GetCurrentMenu();
-    }
-
-    //Activity
-    public ActionSelection GetCurrentActivity()
-    {
-        return roundMenuManager.GetCurrentActivity();
-    }
-
-    public ActionSelection GetCurrentActivity(int _index)
-    {
-        return roundMenuManager.GetCurrentActivity(_index);
-    }
-
-    public ActivityState GetCurrentActivityState()
-    {
-        return roundMenuManager.GetCurrentActivityState();
-    }
-
-    //Element
-    public ElementSelection GetCurrentElement()
-    {
-        return roundMenuManager.GetCurrentElement();
-    }
-
-    public ElementSelection GetCurrentElement(int _index)
-    {
-        return roundMenuManager.GetCurrentElement(_index);
-    }
-
-    public ElementType GetCurrentElementType()
-    {
-        return roundMenuManager.GetCurrentElementType();
-    }
-    public ElementSelection GetInitialValue()
-    {
-        return roundMenuManager.GetInitialValue();
-    }
-
-    public int GetCurrentIndex()
-    {
-        return roundMenuManager.GetCurrentIndex();
-    }
-
-    public List<float> GetAngles()
-    {
-        return roundMenuManager.GetAngles();
-    }
-
-    public float GetAngle()
-    {
-        return roundMenuManager.GetAngle();
-    }
-
-    public int GetSize()
-    {
-        return roundMenuManager.GetSize();
-    }
-
-    public bool GetCondition(bool _)
-    {
-        return roundMenuManager.GetCondition(_);
-    }
-
-    public void SetCurrentIndex(bool _)
-    {
-        roundMenuManager.SetCurrentIndex(_);
-    }
-
-    public void SetCurrentIndex_Reset(bool _)
-    {
-        roundMenuManager.SetCurrentIndex_Reset(_);
-    }
-
     #endregion
 
-    #region Update info in Activity Selection State
-    public void UpdateActivityInfo()
-    {
-        if (Menu_StateManager._instance.GetState() == MenuState.ACTION_SELECTION)
-        {
-            activityUIController.UpdateActivityInfo(GetCurrentActivityState().ToString(), GetCurrentActivity().description);
-            buttonActions.UpdateButtonAction();
-        }
-    }
-
-    public void UpdateElementInfo()
-    {
-        if (Menu_StateManager._instance.GetState() == MenuState.ELEMENT_SELECTION)
-            orbDetails.UpdateOrbDetails(GetCurrentElement().sprite, GetCurrentElementType().ToString(), GetCurrentElement().validationArray);
-    }
-
-    public void InitElementInfo()
-    {
-        orbDetails.UpdateOrbDetails(GetInitialValue().sprite, GetInitialValue().state.ToString(), GetInitialValue().validationArray);
-    }
-
+    #region Button Actions
     public void LeftButton_Action()
     {
         roundMenuManager.currentMenu.LeftButton_Action();
@@ -336,7 +241,6 @@ public class ButtonManager : MonoBehaviour
         roundMenuManager.currentMenu.RightButton_Action();
         SoundManager._instance.PlayMoveSound(SoundTypes.GOODCLICK);
     }
-    #endregion
 
     public void ActionButton_Action()
     {
@@ -401,4 +305,115 @@ public class ButtonManager : MonoBehaviour
             UpdateButtons();
         }
     }
+    #endregion
+
+    // Round Menu Actions
+    #region Round Menu Actions
+    public void UpdateMenu()
+    {
+        roundMenuManager.UpdateMenu();
+    }
+
+    public Transform GetCurrentMenu()
+    {
+        return roundMenuManager.GetCurrentMenu();
+    }
+
+    public int GetCurrentIndex()
+    {
+        return roundMenuManager.GetCurrentIndex();
+    }
+
+    public List<float> GetAngles()
+    {
+        return roundMenuManager.GetAngles();
+    }
+
+    public float GetAngle()
+    {
+        return roundMenuManager.GetAngle();
+    }
+
+    public int GetSize()
+    {
+        return roundMenuManager.GetSize();
+    }
+
+    public bool GetCondition(bool _)
+    {
+        return roundMenuManager.GetCondition(_);
+    }
+
+    public void SetCurrentIndex(bool _)
+    {
+        roundMenuManager.SetCurrentIndex(_);
+    }
+
+    public void SetCurrentIndex_Reset(bool _)
+    {
+        roundMenuManager.SetCurrentIndex_Reset(_);
+    }
+
+    #endregion
+
+    #region State Management - Activity / Element
+    //Activity
+    public ActionSelection GetCurrentActivity()
+    {
+        return roundMenuManager.GetCurrentActivity();
+    }
+
+    public ActionSelection GetCurrentActivity(int _index)
+    {
+        return roundMenuManager.GetCurrentActivity(_index);
+    }
+
+    public ActivityState GetCurrentActivityState()
+    {
+        return roundMenuManager.GetCurrentActivityState();
+    }
+
+    //Element
+    public ElementSelection GetCurrentElement()
+    {
+        return roundMenuManager.GetCurrentElement();
+    }
+
+    public ElementSelection GetCurrentElement(int _index)
+    {
+        return roundMenuManager.GetCurrentElement(_index);
+    }
+
+    public ElementType GetCurrentElementType()
+    {
+        return roundMenuManager.GetCurrentElementType();
+    }
+    public ElementSelection GetInitialValue()
+    {
+        return roundMenuManager.GetInitialValue();
+    }
+    #endregion
+
+    #region Update info in Activity Selection State
+    public void UpdateActivityInfo()
+    {
+        if (Menu_StateManager._instance.GetState() == MenuState.ACTION_SELECTION)
+        {
+            activityUIController.UpdateActivityInfo(GetCurrentActivityState().ToString(), GetCurrentActivity().description);
+            buttonActions.UpdateButtonAction();
+        }
+    }
+
+    public void UpdateElementInfo()
+    {
+        if (Menu_StateManager._instance.GetState() == MenuState.ELEMENT_SELECTION)
+            orbDetails.UpdateOrbDetails(GetCurrentElement().sprite, GetCurrentElementType().ToString(), GetCurrentElement().validationArray);
+    }
+
+    public void InitElementInfo()
+    {
+        orbDetails.UpdateOrbDetails(GetInitialValue().sprite, GetInitialValue().state.ToString(), GetInitialValue().validationArray);
+    }
+
+    #endregion
 }

@@ -6,13 +6,14 @@ public class SoundManager : MonoBehaviour
 {
     public static SoundManager _instance;
 
+    [Header("Audio Clips")]
     [SerializeField] AudioClip move_sound;
     [SerializeField] AudioClip close_sound;
     [SerializeField] AudioClip win_sound;
     [SerializeField] AudioClip goodClick_sound;
     [SerializeField] AudioClip badClick_sound;
 
-
+    [Header("Audio Source")]
     [SerializeField] AudioSource audioSource;
 
     void Awake()

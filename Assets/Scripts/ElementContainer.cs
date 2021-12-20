@@ -5,7 +5,6 @@ using UnityEngine.UI;
 using TMPro;
 
 
-// [ExecuteInEditMode]
 public class ElementContainer : MonoBehaviour
 {
     public ChemistryType chemistryType;
@@ -17,11 +16,6 @@ public class ElementContainer : MonoBehaviour
     [Header("UI Components")]
     public TextMeshProUGUI text;
     public Image img;
-
-    // void OnRenderObject()
-    // {
-    //     img.color = ColorManager._instance.GetColor(chemistryType);
-    // }
 
     public void UpdateChemistryValue(float updateValue)
     {

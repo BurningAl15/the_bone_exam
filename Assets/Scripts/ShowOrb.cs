@@ -70,8 +70,4 @@ public class ShowOrb : MonoBehaviour
 
         currentCoroutine = null;
     }
-
-    // public void ResetScreen(){
-
-    // }
 }

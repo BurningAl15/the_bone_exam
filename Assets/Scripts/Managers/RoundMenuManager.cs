@@ -7,16 +7,13 @@ public class RoundMenuManager : MonoBehaviour
 {
     [SerializeField] Image parentImg;
 
-
     [Header("Action Menu Properties")]
     [SerializeField] Sprite actionState_BG;
     [SerializeField] MenuContainer menu_Activity;
 
-
     [Header("Chemical Menu Properties")]
     [SerializeField] Sprite chemicalState_BG;
     [SerializeField] MenuContainer menu_Chemical;
-
 
     [Header("Element Menu Properties")]
     [SerializeField] Sprite elementState_BG;
@@ -42,6 +39,7 @@ public class RoundMenuManager : MonoBehaviour
         Init_SliderContainer();
     }
 
+    #region Update Menu
     public void UpdateMenu()
     {
         switch (Menu_StateManager._instance.GetState())
@@ -98,7 +96,10 @@ public class RoundMenuManager : MonoBehaviour
         parentImg.sprite = _;
     }
 
+    #endregion
+
     //From Chemistry to Element States
+    #region Slider Container
     public void Init_SliderContainer()
     {
         if (fusionContainerCanvasGroup != null)
@@ -131,7 +132,9 @@ public class RoundMenuManager : MonoBehaviour
         if (fusionContainer != null)
             fusionContainer.SetActive(false);
     }
+    #endregion
 
+    #region 6 Divisions Center
     public void TurnOn_6DivisionsCenter()
     {
         if (contentChemistryCanvasGroup != null)
@@ -147,17 +150,43 @@ public class RoundMenuManager : MonoBehaviour
         if (contentChemistryContainer != null)
             contentChemistryContainer.SetActive(false);
     }
+    #endregion
 
     //Getters
-
     #region Getters
-
     public Transform GetCurrentMenu()
     {
         return currentMenu.menuTransform;
     }
 
+    public int GetCurrentIndex()
+    {
+        return currentMenu.index;
+    }
+
+    public List<float> GetAngles()
+    {
+        return currentMenu.angles;
+    }
+
+    public float GetAngle()
+    {
+        return currentMenu.angles[currentMenu.index];
+    }
+
+    public int GetSize()
+    {
+        return currentMenu.angles.Count;
+    }
+
+    public bool GetCondition(bool _)
+    {
+        return _ ? currentMenu.index > currentMenu.angles.Count - 1 : currentMenu.index < 0;
+    }
+    #endregion
+
     //Activity
+    #region State Management
     public ActionSelection GetCurrentActivity()
     {
         return currentMenu.actionSelections[currentMenu.index];
@@ -194,30 +223,6 @@ public class RoundMenuManager : MonoBehaviour
         return menu_Element.elementSelections[0];
     }
 
-    public int GetCurrentIndex()
-    {
-        return currentMenu.index;
-    }
-
-    public List<float> GetAngles()
-    {
-        return currentMenu.angles;
-    }
-
-    public float GetAngle()
-    {
-        return currentMenu.angles[currentMenu.index];
-    }
-
-    public int GetSize()
-    {
-        return currentMenu.angles.Count;
-    }
-
-    public bool GetCondition(bool _)
-    {
-        return _ ? currentMenu.index > currentMenu.angles.Count - 1 : currentMenu.index < 0;
-    }
     #endregion
 
     //Setters
@@ -226,16 +231,16 @@ public class RoundMenuManager : MonoBehaviour
     public void SetCurrentIndex(bool _)
     {
         currentMenu.index = _ ? currentMenu.index + 1 : currentMenu.index - 1;
-        UpdateStuff();
+        UpdateMenuInfo_FromCurrentMenu();
     }
 
     public void SetCurrentIndex_Reset(bool _)
     {
         currentMenu.index = _ ? 0 : currentMenu.angles.Count - 1;
-        UpdateStuff();
+        UpdateMenuInfo_FromCurrentMenu();
     }
 
-    void UpdateStuff()
+    void UpdateMenuInfo_FromCurrentMenu()
     {
         switch (Menu_StateManager._instance.GetState())
         {
@@ -250,7 +255,6 @@ public class RoundMenuManager : MonoBehaviour
                 break;
         }
     }
-    #endregion
 
     public void ResetMenuIndexes()
     {
@@ -258,4 +262,6 @@ public class RoundMenuManager : MonoBehaviour
         menu_Chemical.index = 0;
         menu_Element.index = 0;
     }
+
+    #endregion
 }

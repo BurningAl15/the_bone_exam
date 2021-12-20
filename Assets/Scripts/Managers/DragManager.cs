@@ -27,13 +27,10 @@ public class DragManager : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
             print("Left");
             activityManager.Move(false);
         }
-        print((endPoint - initialPoint).normalized);
     }
 
     public void OnDrag(PointerEventData eventData)
     {
         print("Drag");
-        // Vector3 endPoint = eventData.position;
-        // print((endPoint - initialPoint).normalized);
     }
 }

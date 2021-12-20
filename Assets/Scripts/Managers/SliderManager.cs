@@ -42,6 +42,7 @@ public class SliderManager : MonoBehaviour
         }
     }
 
+    #region Properties
     public void SetValue(float _value)
     {
         slider.value = _value;
@@ -76,4 +77,5 @@ public class SliderManager : MonoBehaviour
     {
         return value;
     }
+    #endregion
 }
